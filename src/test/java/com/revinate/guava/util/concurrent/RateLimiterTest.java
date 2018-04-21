@@ -56,6 +56,12 @@ public class RateLimiterTest extends TestCase {
     assertFalse("Capable of acquiring secondary permit", r.tryAcquire());
   }
 
+  public void testAcquireNowOrGetWaitTime() {
+    RateLimiter r = RateLimiter.create(1);
+    assertEquals(0, r.acquireNowOrGetWaitTime());
+    assertTrue("Capable of acquiring secondary permit", r.acquireNowOrGetWaitTime() > 0);
+  }
+
   public void testDoubleMinValueCanAcquireExactlyOnce() {
     RateLimiter r = RateLimiter.create(stopwatch, Double.MIN_VALUE, 1.0);
     assertTrue("Unable to acquire initial permit", r.tryAcquire());
@@ -109,6 +115,16 @@ public class RateLimiterTest extends TestCase {
     }
     try {
       limiter.tryAcquire(-1, 1, SECONDS);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      limiter.acquireNowOrGetWaitTime(0);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    try {
+      limiter.acquireNowOrGetWaitTime(-1);
       fail();
     } catch (IllegalArgumentException expected) {
     }

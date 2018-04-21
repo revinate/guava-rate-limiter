@@ -364,6 +364,44 @@ public abstract class RateLimiter {
     return true;
   }
 
+  /**
+   * Acquires the given number of permits from this {@link RateLimiter} if it can be obtained
+   * immediately without delay, or returns the expected time to wait for the permits, in
+   * microseconds.
+   *
+   * @param permits the number of permits to acquire
+   * @return 0 if the permits were acquired, expected time to wait in microseconds otherwise
+   * @throws IllegalArgumentException if the requested number of permits is negative or zero
+   * @since 19.1
+   */
+  public long acquireNowOrGetWaitTime(int permits) {
+    checkPermits(permits);
+    synchronized (mutex()) {
+      long nowMicros = stopwatch.readMicros();
+      long microsToWait = queryEarliestAvailable(nowMicros) - nowMicros;
+      if (microsToWait > 0) {
+        return microsToWait;
+      } else {
+        reserveEarliestAvailable(permits, nowMicros);
+        return 0;
+      }
+    }
+  }
+
+  /**
+   * Acquires a permit from this {@link RateLimiter} if it can be obtained immediately without
+   * delay, or returns the expected time to wait for the permits, in microseconds.
+   *
+   * <p>
+   * This method is equivalent to {@code acquireNowOrGetWaitTime(1)}.
+   *
+   * @return 0 if the permits were acquired, expected time to wait in microseconds otherwise
+   * @since 19.1
+   */
+  public long acquireNowOrGetWaitTime() {
+    return acquireNowOrGetWaitTime(1);
+  }
+
   private boolean canAcquire(long nowMicros, long timeoutMicros) {
     return queryEarliestAvailable(nowMicros) - timeoutMicros <= nowMicros;
   }

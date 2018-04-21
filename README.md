@@ -22,7 +22,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>com.revinate</groupId>
   <artifactId>guava-rate-limiter</artifactId>
-  <version>19.0</version>
+  <version>19.1</version>
 </dependency>
 ```
 
@@ -31,5 +31,5 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build script:
 
 ```groovy
-compile 'com.revinate:guava-rate-limiter:19.0'
+compile 'com.revinate:guava-rate-limiter:19.1'
 ```
